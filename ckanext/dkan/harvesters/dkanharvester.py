@@ -120,6 +120,7 @@ class DKANHarvester(CKANHarvester):
                                   % content)
             try:
                 pkg_dicts_page = response_dict.get('result', [])
+                pkg_dicts_page[0]
             except ValueError:
                 raise SearchError('Response JSON did not contain '
                                   'result/results: %r' % response_dict)
@@ -138,7 +139,7 @@ class DKANHarvester(CKANHarvester):
             if len(pkg_dicts_page) == 0:
                 break
 
-            params['start'] = str(int(params['start']) + int(params['rows']))
+            params['offset'] = str(int(params['offset']) + int(params['limit']))
 
         return pkg_dicts
 
