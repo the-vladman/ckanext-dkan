@@ -19,7 +19,7 @@ MIMETYPE_FORMATS = {
 }
 
 
-class SDKANHarvester(CKANHarvester):
+class DKANHarvester(CKANHarvester):
 
     ckan_revision_api_works = False
 
@@ -65,7 +65,7 @@ class SDKANHarvester(CKANHarvester):
         package = json.loads(content)['result'][0]
         return url, json.dumps(package)
 
-     def _search_for_datasets(self, remote_ckan_base_url, fq_terms=None):
+    def _search_for_datasets(self, remote_ckan_base_url, fq_terms=None):
         '''Does a dataset search on a remote CKAN and returns the results.
 
         Deals with paging to return all the results, not just the first page.
@@ -113,7 +113,7 @@ class SDKANHarvester(CKANHarvester):
                 raise SearchError('Response from remote CKAN was not JSON: %r'
                                   % content)
             try:
-                pkg_dicts_page = response_dict.get('result', [[]])[0]
+                pkg_dicts_page = response_dict.get('result', [])[0]
             except ValueError:
                 raise SearchError('Response JSON did not contain '
                                   'result/results: %r' % response_dict)
