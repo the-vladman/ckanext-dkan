@@ -79,7 +79,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points='''
         [ckan.plugins]
-        dkan_harvester=ckanext.dkan.harvesters.dkanharvester:DkanHarvester
+        dkan_harvester=ckanext.dkan.harvesters.dkanharvester:DKANHarvester
         dkan=ckanext.dkan.plugin:DkanPlugin
     ''',
 
