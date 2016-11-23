@@ -119,11 +119,11 @@ class DKANHarvester(CKANHarvester):
                 raise SearchError('Response from remote CKAN was not JSON: %r'
                                   % content)
             try:
-                pkg_dicts_page = response_dict.get('result', [])[0]
+                pkg_dicts_page = response_dict.get('result', [])
             except ValueError:
                 raise SearchError('Response JSON did not contain '
                                   'result/results: %r' % response_dict)
-
+            print response_dict
             # Weed out any datasets found on previous pages (should datasets be
             # changing while we page)
             ids_in_page = set(p['id'] for p in pkg_dicts_page)
