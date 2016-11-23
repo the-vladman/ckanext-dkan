@@ -1,0 +1,1 @@
+from ckanext.dkan.harvesters.dkanharvester import DKANHarvester
