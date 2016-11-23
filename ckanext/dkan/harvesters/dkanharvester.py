@@ -1,4 +1,4 @@
-from ckanext.harvest.harvesters import HarvesterBase, CKANHarvester
+from ckanext.harvest.harvesters import CKANHarvester
 import json
 from ckan import model
 import ckan.lib.munge as munge

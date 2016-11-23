@@ -49,7 +49,7 @@ setup(
 
 
     # What does your project relate to?
-    keywords='''CKAN''',
+    keywords='''DKAN''',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -79,10 +79,8 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points='''
         [ckan.plugins]
-        dkan_harvester=ckanext.dkan.harvesters:DkanHarvester
+        dkan_harvester=ckanext.dkan.harvesters.dkanharvester:DkanHarvester
         dkan=ckanext.dkan.plugin:DkanPlugin
-	[babel.extractors]
-	ckan = ckan.lib.extract:extract_ckan
     ''',
 
     # If you are changing from the default layout of your extension, you may
