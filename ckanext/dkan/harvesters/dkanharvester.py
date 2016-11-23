@@ -1,5 +1,11 @@
-from ckanext.harvest.harvesters import CKANHarvester
 import json
+import urllib
+import urllib2
+import httplib
+import datetime
+import socket
+
+from ckanext.harvest.harvesters import CKANHarvester
 from ckan import model
 import ckan.lib.munge as munge
 
