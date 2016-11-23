@@ -1,4 +1,4 @@
-from ckanharvester import CKANHarvester
+from ckanext.harvest.harvesters import HarvesterBase, CKANHarvester
 import json
 from ckan import model
 import ckan.lib.munge as munge
@@ -19,20 +19,20 @@ MIMETYPE_FORMATS = {
 }
 
 
-class DKANHarvester(CKANHarvester):
+class SDKANHarvester(CKANHarvester):
 
     ckan_revision_api_works = False
 
     def info(self):
         return {
             'name': 'dkan',
-            'title': 'DKAN',
+            'title': 'DKAN HARVESTER',
             'description': 'Harvests remote DKAN instances',
             'form_config_interface': 'Text'
         }
 
     def _get_search_api_offset(self):
-        return '/api/3/action/package_list'
+        return '%s/current_package_list_with_resources' % self._get_action_api_offset()
 
     def _get_all_packages(self, base_url, harvest_job):
         # Request all remote packages
