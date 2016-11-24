@@ -9,6 +9,7 @@ import datetime
 from ckanext.harvest.harvesters import CKANHarvester
 from ckan import model
 import ckan.lib.munge as munge
+from ckan.plugins import toolkit
 
 log = __import__('logging').getLogger(__name__)
 
