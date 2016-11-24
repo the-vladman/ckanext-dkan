@@ -166,9 +166,6 @@ class DKANHarvester(CKANHarvester):
                 log.debug('Creating HarvestObject for %s %s',
                           pkg_dict['name'], pkg_dict['id'])
 
-                log.debug('Recurso de prueba vale verga')
-                log.debug(pkg_dict['resources'])
-
                 obj = HarvestObject(guid=pkg_dict['id'],
                                     job=harvest_job,
                                     content=json.dumps(pkg_dict))
@@ -209,13 +206,13 @@ class DKANHarvester(CKANHarvester):
         previous_content = None
         while True:
             url = base_search_url + '?' + urllib.urlencode(params)
-            log.debug('Searching for CKAN datasets: %s', url)
+            log.debug('Searching for DKAN datasets: %s', url)
             try:
                 content = self._get_content(url)
             except ContentFetchError, e:
                 raise SearchError(
                     'Error sending request to search remote '
-                    'CKAN instance %s using URL %r. Error: %s' %
+                    'DKAN instance %s using URL %r. Error: %s' %
                     (remote_ckan_base_url, url, e))
 
             if previous_content and content == previous_content:
@@ -224,7 +221,7 @@ class DKANHarvester(CKANHarvester):
             try:
                 response_dict = json.loads(content)
             except ValueError:
-                raise SearchError('Response from remote CKAN was not JSON: %r'
+                raise SearchError('Response from remote DKAN was not JSON: %r'
                                   % content)
             try:
                 pkg_dicts_page = response_dict.get('result', [])
@@ -240,10 +237,12 @@ class DKANHarvester(CKANHarvester):
             if type(pkg_dicts_page[0]) == list:
                 pkg_dicts_page = pkg_dicts_page[0]
 
+            pkg_dicts_page = set(self._convert_dkan_package_to_ckan(p) for p in pkg_dicts_page)
+
             ids_in_page = set(p['id'] for p in pkg_dicts_page)
             duplicate_ids = ids_in_page & pkg_ids
             if duplicate_ids:
-                pkg_dicts_page = [self._convert_dkan_package_to_ckan(p) for p in pkg_dicts_page if p['id'] not in duplicate_ids]
+                pkg_dicts_page = [p for p in pkg_dicts_page if p['id'] not in duplicate_ids]
             pkg_ids |= ids_in_page
 
             pkg_dicts.extend(pkg_dicts_page)
@@ -255,6 +254,7 @@ class DKANHarvester(CKANHarvester):
     def _convert_dkan_package_to_ckan(self, package):
         # change the DKAN-isms into CKAN-style
         resources = []
+        log.debug("Hola que tal")
         try:
             if 'extras' not in package:
                 package['extras'] = {}
