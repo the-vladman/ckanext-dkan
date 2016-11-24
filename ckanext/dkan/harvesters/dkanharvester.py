@@ -7,6 +7,7 @@ import socket
 import datetime
 
 from ckanext.harvest.harvesters import CKANHarvester
+from ckanext.harvest.model import HarvestObject
 from ckan import model
 import ckan.lib.munge as munge
 from ckan.plugins import toolkit
@@ -28,7 +29,6 @@ MIMETYPE_FORMATS = {
 
 
 class DKANHarvester(CKANHarvester):
-
     ckan_revision_api_works = False
 
     def info(self):
