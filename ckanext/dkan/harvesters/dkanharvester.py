@@ -130,15 +130,17 @@ class DKANHarvester(CKANHarvester):
                 break
             # Weed out any datasets found on previous pages (should datasets be
             # changing while we page)
-            ids_in_page = set(p['id'] for p in pkg_dicts_page[0] if type(pkg_dicts_page[0]) == list else pkg_dicts_page)
+
+            if type(pkg_dicts_page[0]) == list:
+                pkg_dicts_page = pkg_dicts_page[0]
+
+            ids_in_page = set(p['id'] for p in pkg_dicts_page)
             duplicate_ids = ids_in_page & pkg_ids
             if duplicate_ids:
-                pkg_dicts_page = [p for p in pkg_dicts_page[0]
-                                  if p['id'] not in duplicate_ids]
+                pkg_dicts_page = [p for p in pkg_dicts_page if p['id'] not in duplicate_ids]
             pkg_ids |= ids_in_page
 
             pkg_dicts.extend(pkg_dicts_page)
-
 
             params['offset'] = str(int(params['offset']) + int(params['limit']))
 
