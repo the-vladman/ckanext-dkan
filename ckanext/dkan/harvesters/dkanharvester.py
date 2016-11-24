@@ -4,6 +4,7 @@ import urllib2
 import httplib
 import datetime
 import socket
+import datetime
 
 from ckanext.harvest.harvesters import CKANHarvester
 from ckan import model
@@ -120,7 +121,6 @@ class DKANHarvester(CKANHarvester):
                                   % content)
             try:
                 pkg_dicts_page = response_dict.get('result', [])
-                #pkg_dicts_page
             except ValueError:
                 raise SearchError('Response JSON did not contain '
                                   'result/results: %r' % response_dict)
@@ -137,7 +137,7 @@ class DKANHarvester(CKANHarvester):
             ids_in_page = set(p['id'] for p in pkg_dicts_page)
             duplicate_ids = ids_in_page & pkg_ids
             if duplicate_ids:
-                pkg_dicts_page = [p for p in pkg_dicts_page if p['id'] not in duplicate_ids]
+                pkg_dicts_page = [p for convert_dkan_package_to_ckan(p) in pkg_dicts_page if p['id'] not in duplicate_ids]
             pkg_ids |= ids_in_page
 
             pkg_dicts.extend(pkg_dicts_page)
@@ -146,10 +146,7 @@ class DKANHarvester(CKANHarvester):
 
         return pkg_dicts
 
-
-    @classmethod
-    def get_harvested_package_dict(cls, harvest_object):
-        package = CKANHarvester.get_harvested_package_dict(harvest_object)
+    def convert_dkan_package_to_ckan(self, package):
         # change the DKAN-isms into CKAN-style
         try:
             if 'extras' not in package:
@@ -168,8 +165,31 @@ class DKANHarvester(CKANHarvester):
 
             if 'resources' not in package:
                 raise ValueError('Dataset has no resources')
+
             for resource in package['resources']:
                 resource['description'] = resource['title']
+
+                if 'size' in resource:
+                    if type(resource['size']) == str:
+                        clean_size = resource['size'].replace('KB', '').replace('MB', '').strip()
+                        resource['size'] = int(clean_size)
+
+
+                try:
+                    self._convert_date(resource['created'])
+                except:
+                    log.error(
+                        'Incorrect date created format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['title'], resource['created'])
+                    )
+                    resource['created'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+
+                try:
+                    self._convert_date(resource['last_modified'], last_modified=True)
+                except:
+                    log.error(
+                        'Incorrect date last_modified format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['title'], resource['last_modified'])
+                    )
+                    resource['last_modified'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
 
                 if 'revision_id' in resource:
                     del resource['revision_id']
@@ -186,10 +206,22 @@ class DKANHarvester(CKANHarvester):
 
             return package
         except Exception, e:
-            cls._save_object_error(
-                'Unable to get convert DKAN to CKAN package: %s' % e,
-                harvest_object)
+            log.error('Unable to get convert DKAN to CKAN package: %s' % e)
             return None
+
+    def _convert_date(self, date, last_modified=False):
+
+        try:
+            date_object = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+        except:
+            pass
+        else:
+            return date
+
+        date_correct_format = date.replace('Date changed\t', '')[4:] if last_modified else date[4:]
+        date_object = datetime.datetime.strptime(date_correct_format, '%d/%m/%y - %I:%M')
+
+        return date_object.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     def _fix_tags(self, package_dict):
         pass
