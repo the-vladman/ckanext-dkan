@@ -340,3 +340,6 @@ class DKANHarvester(CKANHarvester):
 
     def _fix_tags(self, package_dict):
         pass
+
+class SearchError(Exception):
+    pass
