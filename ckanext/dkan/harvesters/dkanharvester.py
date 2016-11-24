@@ -332,7 +332,7 @@ class DKANHarvester(CKANHarvester):
 
         try:
             date_correct_format = date.replace('Date changed\t', '')[4:].lstrip() if last_modified else date[4:].lstrip()
-            date_object = datetime.datetime.strptime(date_correct_format, '%m/%d/%y - %I:%M')
+            date_object = datetime.datetime.strptime(date_correct_format, '%m/%d/%Y - %H:%M')
         except Exception, e:
             log.debug(e)
 
