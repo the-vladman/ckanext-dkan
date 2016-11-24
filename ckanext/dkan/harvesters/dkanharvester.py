@@ -120,7 +120,7 @@ class DKANHarvester(CKANHarvester):
                                   % content)
             try:
                 pkg_dicts_page = response_dict.get('result', [])
-                pkg_dicts_page[0]
+#                pkg_dicts_page[0]
             except ValueError:
                 raise SearchError('Response JSON did not contain '
                                   'result/results: %r' % response_dict)
