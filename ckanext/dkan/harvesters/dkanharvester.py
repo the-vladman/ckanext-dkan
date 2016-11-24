@@ -237,7 +237,7 @@ class DKANHarvester(CKANHarvester):
             if type(pkg_dicts_page[0]) == list:
                 pkg_dicts_page = pkg_dicts_page[0]
 
-            pkg_dicts_page = set(self._convert_dkan_package_to_ckan(p) for p in pkg_dicts_page)
+            pkg_dicts_page = [self._convert_dkan_package_to_ckan(p) for p in pkg_dicts_page]
 
             ids_in_page = set(p['id'] for p in pkg_dicts_page)
             duplicate_ids = ids_in_page & pkg_ids
@@ -274,7 +274,7 @@ class DKANHarvester(CKANHarvester):
                 raise ValueError('Dataset has no resources')
 
             for resource in package['resources']:
-                resource['description'] = resource['title']
+                resource['description'] = resource['name']
 
                 if 'size' in resource:
                     if type(resource['size']) == str:
