@@ -124,7 +124,6 @@ class DKANHarvester(CKANHarvester):
             except ValueError:
                 raise SearchError('Response JSON did not contain '
                                   'result/results: %r' % response_dict)
-            print response_dict
 
             if len(pkg_dicts_page) == 0:
                 break
@@ -204,7 +203,9 @@ class DKANHarvester(CKANHarvester):
                 # them, so assume they are not private.
                 package['private'] = False
 
+            print "Vale verga!!"
             print package
+
             return package
         except Exception, e:
             log.error('Unable to get convert DKAN to CKAN package: %s' % e)
