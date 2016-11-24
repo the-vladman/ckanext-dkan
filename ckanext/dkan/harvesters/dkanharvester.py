@@ -254,6 +254,7 @@ class DKANHarvester(CKANHarvester):
 
     def _convert_dkan_package_to_ckan(self, package):
         # change the DKAN-isms into CKAN-style
+        resources = []
         try:
             if 'extras' not in package:
                 package['extras'] = {}
@@ -280,7 +281,6 @@ class DKANHarvester(CKANHarvester):
                         clean_size = resource['size'].replace('KB', '').replace('MB', '').strip()
                         resource['size'] = int(clean_size)
 
-
                 try:
                     resource['created'] = self._convert_date(resource['created'])
                 except:
@@ -303,15 +303,16 @@ class DKANHarvester(CKANHarvester):
                 if 'format' not in resource:
                     resource['format'] = MIMETYPE_FORMATS.get(resource.get('mimetype'), '')
 
+                resources.append(resource)
+
+            package['resources'] = resources
+
             if 'private' in package:
                 # DKAN appears to have datasets with private=True which are
                 # still public: https://github.com/NuCivic/dkan/issues/950. If
                 # they were really private then we'd not get be able to access
                 # them, so assume they are not private.
                 package['private'] = False
-
-            log.debug("Vale verga!!")
-            log.debug(package)
 
             return package
         except Exception, e:
@@ -320,13 +321,15 @@ class DKANHarvester(CKANHarvester):
 
     def _convert_date(self, date, last_modified=False):
 
+        log.debug("convirtiendo")
+
         try:
             date_object = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
             return date
         except:
+            log.debug("Se cago")
             pass
 
-        log.debug("convirtiendo")
         try:
             date_correct_format = date.replace('Date changed\t', '')[4:] if last_modified else date[4:]
             date_object = datetime.datetime.strptime(date_correct_format, '%d/%m/%y - %I:%M')
