@@ -203,8 +203,8 @@ class DKANHarvester(CKANHarvester):
                 # them, so assume they are not private.
                 package['private'] = False
 
-            print "Vale verga!!"
-            print package
+            log.debug("Vale verga!!")
+            log.debug(package)
 
             return package
         except Exception, e:
