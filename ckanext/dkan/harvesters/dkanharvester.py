@@ -120,14 +120,17 @@ class DKANHarvester(CKANHarvester):
                                   % content)
             try:
                 pkg_dicts_page = response_dict.get('result', [])
-#                pkg_dicts_page[0]
+                #pkg_dicts_page
             except ValueError:
                 raise SearchError('Response JSON did not contain '
                                   'result/results: %r' % response_dict)
             print response_dict
+
+            if len(pkg_dicts_page) == 0:
+                break
             # Weed out any datasets found on previous pages (should datasets be
             # changing while we page)
-            ids_in_page = set(p['id'] for p in pkg_dicts_page)
+            ids_in_page = set(p['id'] for p in pkg_dicts_page[0])
             duplicate_ids = ids_in_page & pkg_ids
             if duplicate_ids:
                 pkg_dicts_page = [p for p in pkg_dicts_page
@@ -136,8 +139,6 @@ class DKANHarvester(CKANHarvester):
 
             pkg_dicts.extend(pkg_dicts_page)
 
-            if len(pkg_dicts_page) == 0:
-                break
 
             params['offset'] = str(int(params['offset']) + int(params['limit']))
 
