@@ -327,14 +327,10 @@ class DKANHarvester(CKANHarvester):
             date_object = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
             return date
         except:
-            log.debug("Se cago")
             pass
 
-        try:
-            date_correct_format = date.replace('Date changed\t', '')[4:].lstrip() if last_modified else date[4:].lstrip()
-            date_object = datetime.datetime.strptime(date_correct_format, '%m/%d/%Y - %H:%M')
-        except Exception, e:
-            log.debug(e)
+        date_correct_format = date.replace('Date changed\t', '')[4:].lstrip() if last_modified else date[4:].lstrip()
+        date_object = datetime.datetime.strptime(date_correct_format, '%m/%d/%Y - %H:%M')
 
         return date_object.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
