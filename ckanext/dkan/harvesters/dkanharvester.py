@@ -176,7 +176,7 @@ class DKANHarvester(CKANHarvester):
 
 
                 try:
-                    self._convert_date(resource['created'])
+                    resource['created'] = self._convert_date(resource['created'])
                 except:
                     log.error(
                         'Incorrect date created format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['title'], resource['created'])
@@ -184,7 +184,7 @@ class DKANHarvester(CKANHarvester):
                     resource['created'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
                 try:
-                    self._convert_date(resource['last_modified'], last_modified=True)
+                    resource['last_modified'] = self._convert_date(resource['last_modified'], last_modified=True)
                 except:
                     log.error(
                         'Incorrect date last_modified format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['title'], resource['last_modified'])
@@ -204,6 +204,7 @@ class DKANHarvester(CKANHarvester):
                 # them, so assume they are not private.
                 package['private'] = False
 
+            print package
             return package
         except Exception, e:
             log.error('Unable to get convert DKAN to CKAN package: %s' % e)
