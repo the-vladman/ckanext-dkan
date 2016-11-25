@@ -441,10 +441,12 @@ class DKANHarvester(CKANHarvester):
             for license in model.Package.get_license_register().values():
                 if license.title == package['license_title']:
                     package['license_id'] = license.id
-                    break
+                    breakc
 
             if 'resources' not in package:
                 raise ValueError('Dataset has no resources')
+
+            package = self.tag_aux(package)
 
             for resource in package['resources']:
                 resource['description'] = resource['name']
@@ -509,7 +511,16 @@ class DKANHarvester(CKANHarvester):
         return date_object.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     def _fix_tags(self, package_dict):
-        pass
+        tags = []
+        for tag in package_dict['tags']:
+            tag_aux = tag
+            if 'vocabulary_id' in tag_aux:
+                tag_aux['vocabulary_id'] = None
+            tags.append(tag_aux)
+
+        package_dict['tags'] = tags
+
+        return package_dict
 
 class SearchError(Exception):
     pass
