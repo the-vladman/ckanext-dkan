@@ -8,6 +8,7 @@ import datetime
 
 from ckanext.harvest.harvesters import CKANHarvester
 from ckanext.harvest.model import HarvestObject
+from ckan.logic import ValidationError, NotFound, get_action
 from ckan import model
 import ckan.lib.munge as munge
 from ckan.plugins import toolkit
@@ -426,7 +427,6 @@ class DKANHarvester(CKANHarvester):
     def _convert_dkan_package_to_ckan(self, package):
         # change the DKAN-isms into CKAN-style
         resources = []
-        log.debug("Hola que tal")
         try:
             if 'extras' not in package:
                 package['extras'] = {}
@@ -497,9 +497,6 @@ class DKANHarvester(CKANHarvester):
             return None
 
     def _convert_date(self, date, last_modified=False):
-
-        log.debug("convirtiendo")
-
         try:
             date_object = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
             return date
