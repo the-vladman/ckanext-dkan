@@ -446,7 +446,7 @@ class DKANHarvester(CKANHarvester):
             if 'resources' not in package:
                 raise ValueError('Dataset has no resources')
 
-            package = self.tag_aux(package)
+            package = self._fix_tags(package)
 
             for resource in package['resources']:
                 resource['description'] = resource['name']
@@ -512,6 +512,7 @@ class DKANHarvester(CKANHarvester):
 
     def _fix_tags(self, package_dict):
         tags = []
+        tag_aux = None
         for tag in package_dict['tags']:
             tag_aux = tag
             if 'vocabulary_id' in tag_aux:
