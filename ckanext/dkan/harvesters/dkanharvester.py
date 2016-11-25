@@ -513,11 +513,13 @@ class DKANHarvester(CKANHarvester):
     def _fix_tags(self, package_dict):
         tags = []
         tag_aux = None
-        for tag in package_dict['tags']:
+
+        for tag in package_dict.get('tags', []):
             tag_aux = tag
             if 'vocabulary_id' in tag_aux:
                 tag_aux['vocabulary_id'] = None
             tags.append(tag_aux)
+
 
         package_dict['tags'] = tags
 
