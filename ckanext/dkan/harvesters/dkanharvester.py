@@ -451,6 +451,9 @@ class DKANHarvester(CKANHarvester):
             for resource in package['resources']:
                 resource['description'] = resource['name']
 
+                if not resource.get('url', ''):
+                    next
+
                 if 'size' in resource:
                     if type(resource['size']) == unicode or type(resource['size']) == str:
                         clean_size = resource['size'].replace('KB', '').replace('MB', '').strip()
