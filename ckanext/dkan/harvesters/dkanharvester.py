@@ -453,30 +453,30 @@ class DKANHarvester(CKANHarvester):
 
             if 'metadata_created' in package:
                 try:
-                    package['metadata_created'] = self._convert_date(resource['metadata_created'])
+                    package['metadata_created'] = self._convert_date(package['metadata_created'])
                 except:
                     log.error(
                             u'Incorrect date metadata_created format in Package: {0}'.format(package['name'])
                     )
-                    resource['metadata_created'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+                    package['metadata_created'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
 
             if 'metadata_modified' in package:
                 try:
-                    package['metadata_modified'] = self._convert_date(resource['metadata_modified'])
+                    package['metadata_modified'] = self._convert_date(package['metadata_modified'])
                 except:
                     log.error(
                             u'Incorrect date metadata_modified format in Package: {0}'.format(package['name'])
                     )
-                    resource['metadata_modified'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+                    package['metadata_modified'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
 
             if 'revision_timestamp' in package:
                 try:
-                    package['revision_timestamp'] = self._convert_date(resource['revision_timestamp'])
+                    package['revision_timestamp'] = self._convert_date(package['revision_timestamp'])
                 except:
                     log.error(
                             u'Incorrect date revision_timestamp format in Package: {0}'.format(package['name'])
                     )
-                    resource['revision_timestamp'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+                    package['revision_timestamp'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
 
             if 'resources' not in package:
                 raise ValueError('Dataset has no resources')
