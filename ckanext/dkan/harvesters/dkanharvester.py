@@ -444,6 +444,40 @@ class DKANHarvester(CKANHarvester):
                     package['license_id'] = license.id
                     breakc
 
+            if 'private' not in package:
+                package['private'] = False
+
+            package['private'] = True if package['private'] != 'Publicado' else False
+            package['state'] = package['state'].lower()
+            package['type'] = package['type'].lower()
+
+            if 'metadata_created' in package:
+                try:
+                    package['metadata_created'] = self._convert_date(resource['metadata_created'])
+                except:
+                    log.error(
+                            u'Incorrect date metadata_created format in Package: {0}'.format(package['name'])
+                    )
+                    resource['metadata_created'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+            if 'metadata_modified' in package:
+                try:
+                    package['metadata_modified'] = self._convert_date(resource['metadata_modified'])
+                except:
+                    log.error(
+                            u'Incorrect date metadata_modified format in Package: {0}'.format(package['name'])
+                    )
+                    resource['metadata_modified'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+            if 'revision_timestamp' in package:
+                try:
+                    package['revision_timestamp'] = self._convert_date(resource['revision_timestamp'])
+                except:
+                    log.error(
+                            u'Incorrect date revision_timestamp format in Package: {0}'.format(package['name'])
+                    )
+                    resource['revision_timestamp'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+
             if 'resources' not in package:
                 raise ValueError('Dataset has no resources')
 
