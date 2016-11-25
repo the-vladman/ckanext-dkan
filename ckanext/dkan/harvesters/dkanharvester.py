@@ -416,6 +416,7 @@ class DKANHarvester(CKANHarvester):
             result = self._create_or_update_package(
                 package_dict, harvest_object, package_dict_form='package_show')
 
+            log.info(result)
             return result
         except ValidationError, e:
             self._save_object_error('Invalid package with GUID %s: %r' %
