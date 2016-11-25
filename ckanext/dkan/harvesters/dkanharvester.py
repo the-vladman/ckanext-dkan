@@ -260,7 +260,8 @@ class DKANHarvester(CKANHarvester):
                 package['extras'] = {}
 
             if 'name' not in package:
-                package['name'] = munge.munge_title_to_name(package['title'])
+                if 'title' in package:
+                    package['name'] = munge.munge_title_to_name(package['title'])
 
             if 'description' in package:
                 package['notes'] = package['description']
@@ -285,7 +286,7 @@ class DKANHarvester(CKANHarvester):
                     resource['created'] = self._convert_date(resource['created'])
                 except:
                     log.error(
-                        'Incorrect date created format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['title'], resource['created'])
+                        'Incorrect date created format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['name'], resource['created'])
                     )
                     resource['created'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
@@ -293,7 +294,7 @@ class DKANHarvester(CKANHarvester):
                     resource['last_modified'] = self._convert_date(resource['last_modified'], last_modified=True)
                 except:
                     log.error(
-                        'Incorrect date last_modified format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['title'], resource['last_modified'])
+                        'Incorrect date last_modified format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['name'], resource['last_modified'])
                     )
                     resource['last_modified'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
 
