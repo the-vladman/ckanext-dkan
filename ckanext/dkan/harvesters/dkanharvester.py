@@ -429,7 +429,7 @@ class DKANHarvester(CKANHarvester):
         resources = []
         try:
             if 'extras' not in package:
-                package['extras'] = {}
+                package['extras'] = []
 
             if 'name' not in package:
                 if 'title' in package:
