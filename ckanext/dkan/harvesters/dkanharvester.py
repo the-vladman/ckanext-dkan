@@ -455,14 +455,14 @@ class DKANHarvester(CKANHarvester):
                         try:
                             resource['size'] = float(clean_size)
                         except:
-                            log.error('Incorrect size file format Package: {0}, Resource: {1}'.format(package['name'], resource['name']))
+                            log.error(u'Incorrect size file format Package: {0}, Resource: {1}'.format(package['name'], resource['name']))
                             resource['size'] = 0.0
 
                 try:
                     resource['created'] = self._convert_date(resource['created'])
                 except:
                     log.error(
-                        'Incorrect date created format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['name'], resource['created'])
+                        u'Incorrect date created format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['name'], resource['created'])
                     )
                     resource['created'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
@@ -470,7 +470,7 @@ class DKANHarvester(CKANHarvester):
                     resource['last_modified'] = self._convert_date(resource['last_modified'], last_modified=True)
                 except:
                     log.error(
-                        'Incorrect date last_modified format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['name'], resource['last_modified'])
+                        u'Incorrect date last_modified format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['name'], resource['last_modified'])
                     )
                     resource['last_modified'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
 
