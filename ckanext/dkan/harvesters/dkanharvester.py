@@ -452,7 +452,11 @@ class DKANHarvester(CKANHarvester):
                 if 'size' in resource:
                     if type(resource['size']) == unicode or type(resource['size']) == str:
                         clean_size = resource['size'].replace('KB', '').replace('MB', '').strip()
-                        resource['size'] = float(clean_size)
+                        try:
+                            resource['size'] = float(clean_size)
+                        except:
+                            log.error('Incorrect size file format Package: {0}, Resource: {1}'.format(package['name'], resource['name']))
+                            resource['size'] = 0.0
 
                 try:
                     resource['created'] = self._convert_date(resource['created'])
