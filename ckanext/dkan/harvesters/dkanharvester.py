@@ -426,15 +426,21 @@ class DKANHarvester(CKANHarvester):
             self._save_object_error('%s' % e, harvest_object, 'Import')
 
     def _convert_dkan_package_to_ckan(self, package):
-        # change the DKAN-isms into CKAN-style
+        """
+        Function: Change the package dict's DKAN-style
+        to CKAN-style
+        Return: <dict>
+        """
         resources = []
         try:
             if 'extras' not in package:
                 package['extras'] = []
 
+            if 'title' not in package:
+                raise ValueError("Dataset has not title")
+
             if 'name' not in package:
-                if 'title' in package:
-                    package['name'] = munge.munge_title_to_name(package['title'])
+                package['name'] = munge.munge_title_to_name(package['title'])
 
             if 'description' in package:
                 package['notes'] = package['description']
@@ -446,37 +452,20 @@ class DKANHarvester(CKANHarvester):
 
             if 'private' not in package:
                 package['private'] = False
+            else:
+                package['private'] = True if package['private'] != 'Publicado' else False
 
-            package['private'] = True if package['private'] != 'Publicado' else False
             package['state'] = package['state'].lower()
             package['type'] = package['type'].lower()
 
             if 'metadata_created' in package:
-                try:
-                    package['metadata_created'] = self._convert_date(package['metadata_created'])
-                except:
-                    log.error(
-                            u'Incorrect date metadata_created format in Package: {0}'.format(package['name'])
-                    )
-                    package['metadata_created'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+                package['metadata_created'] = self._convert_date_package_handling_error(package, 'metadata_created')
 
             if 'metadata_modified' in package:
-                try:
-                    package['metadata_modified'] = self._convert_date(package['metadata_modified'])
-                except:
-                    log.error(
-                            u'Incorrect date metadata_modified format in Package: {0}'.format(package['name'])
-                    )
-                    package['metadata_modified'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+                package['metadata_modified'] = self._convert_date_package_handling_error(package, 'metadata_modified')
 
             if 'revision_timestamp' in package:
-                try:
-                    package['revision_timestamp'] = self._convert_date(package['revision_timestamp'])
-                except:
-                    log.error(
-                            u'Incorrect date revision_timestamp format in Package: {0}'.format(package['name'])
-                    )
-                    package['revision_timestamp'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+                package['revision_timestamp'] = self._convert_date_package_handling_error(package, 'revision_timestamp')
 
             if 'resources' not in package:
                 raise ValueError('Dataset has no resources')
@@ -498,21 +487,8 @@ class DKANHarvester(CKANHarvester):
                             log.error(u'Incorrect size file format Package: {0}, Resource: {1}'.format(package['name'], resource['name']))
                             resource['size'] = 0
 
-                try:
-                    resource['created'] = self._convert_date(resource['created'])
-                except:
-                    log.error(
-                        u'Incorrect date created format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['name'], resource['created'])
-                    )
-                    resource['created'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-
-                try:
-                    resource['last_modified'] = self._convert_date(resource['last_modified'], last_modified=True)
-                except:
-                    log.error(
-                        u'Incorrect date last_modified format in Package: {0}, Source: {1} Date: {2}'.format(package['name'], resource['name'], resource['last_modified'])
-                    )
-                    resource['last_modified'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+                self._convert_date_package_handling_error(resource, 'created', package_name['name'])
+                self._convert_date_package_handling_error(resource, 'last_modified', package_name['name'], last_modified=True)
 
                 if 'revision_id' in resource:
                     del resource['revision_id']
@@ -536,7 +512,37 @@ class DKANHarvester(CKANHarvester):
             log.error('Unable to get convert DKAN to CKAN package: %s' % e)
             return None
 
+    def _convert_date_package_handling_error(self, package, key, last_modified=False):
+        """
+        Function: Convert package's format dates
+        Return: <string>
+        """
+        try:
+            return self._convert_date(package[key], last_modified=last_modified)
+        except:
+            log.error(
+                    u'Incorrect date metadata_created format in Package {0}: {1}'.format(package['name'], package[key])
+            )
+            return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+    def _convert_date_package_handling_error(self, resource, key, package_name, last_modified=False):
+        """
+        Function: Convert resources's format dates
+        Return: <string>
+        """
+        try:
+            return self._convert_date(resource[key], last_modified=last_modified)
+        except:
+            log.error(
+                u'Incorrect date last_modified format in Package: {0}, Source: {1} Date: {2}'.format(package_name, resource['name'], resource[key])
+            )
+            return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+
     def _convert_date(self, date, last_modified=False):
+        """
+        Function: Convert generic format to ckan dates format
+        Return: <string>
+        """
         try:
             date_object = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
             return date
@@ -549,6 +555,10 @@ class DKANHarvester(CKANHarvester):
         return date_object.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     def _fix_tags(self, package_dict):
+        """
+        Function: Purge the vocabulary tags
+        Return: <dict>
+        """
         tags = []
         tag_aux = None
 
