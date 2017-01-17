@@ -253,7 +253,7 @@ class DKANHarvester(CKANHarvester):
         return pkg_dicts
 
     def import_stage(self, harvest_object):
-        log.debug('In CKANHarvester import_stage')
+        log.debug('In DKANHarvester import_stage')
 
         base_context = {'model': model, 'session': model.Session,
                         'user': self._get_user_name()}
@@ -549,8 +549,14 @@ class DKANHarvester(CKANHarvester):
         except:
             pass
 
+        try:
+            date_object = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
+            return date
+        except:
+            pass
+
         date_correct_format = date.replace('Date changed\t', '')[4:].lstrip() if last_modified else date[4:].lstrip()
-        date_object = datetime.datetime.strptime(date_correct_format, '%m/%d/%Y - %H:%M')
+        date_object = datetime.datetime.strptime(date_correct_format, '%m/%d/%Y - %H:%M:%S')
 
         return date_object.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
