@@ -487,8 +487,8 @@ class DKANHarvester(CKANHarvester):
                             log.error(u'Incorrect size file format Package: {0}, Resource: {1}'.format(package['name'], resource['name']))
                             resource['size'] = 0
 
-                self._convert_date_resource_handling_error(resource, 'created', package_name['name'])
-                self._convert_date_resource_handling_error(resource, 'last_modified', package_name['name'], last_modified=True)
+                self._convert_date_resource_handling_error(resource, 'created', package['name'])
+                self._convert_date_resource_handling_error(resource, 'last_modified', package['name'], last_modified=True)
 
                 if 'revision_id' in resource:
                     del resource['revision_id']
@@ -550,7 +550,7 @@ class DKANHarvester(CKANHarvester):
             pass
 
         try:
-            date_object = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+            date_object = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S")
             return date
         except:
             pass
