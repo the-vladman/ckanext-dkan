@@ -238,9 +238,9 @@ class DKANHarvester(CKANHarvester):
             if type(pkg_dicts_page[0]) == list:
                 pkg_dicts_page = pkg_dicts_page[0]
 
-            pkg_dicts_page = [self._convert_dkan_package_to_ckan(p) for p in pkg_dicts_page]
+            pkg_dicts_page = [self._convert_dkan_package_to_ckan(p) for p in pkg_dicts_page if p is not None ]
 
-            ids_in_page = set(p['id'] if p is not None for p in pkg_dicts_page)
+            ids_in_page = set(p['id'] for p in pkg_dicts_page)
             duplicate_ids = ids_in_page & pkg_ids
             if duplicate_ids:
                 pkg_dicts_page = [p for p in pkg_dicts_page if p['id'] not in duplicate_ids]
@@ -448,7 +448,7 @@ class DKANHarvester(CKANHarvester):
             for license in model.Package.get_license_register().values():
                 if license.title == package['license_title']:
                     package['license_id'] = license.id
-                    breakc
+                    break
 
             if 'private' not in package:
                 package['private'] = False
@@ -486,6 +486,7 @@ class DKANHarvester(CKANHarvester):
                         except:
                             log.error(u'Incorrect size file format Package: {0}, Resource: {1}'.format(package['name'], resource['name']))
                             resource['size'] = 0
+                            return None
 
                 self._convert_date_resource_handling_error(resource, 'created', package['name'])
                 self._convert_date_resource_handling_error(resource, 'last_modified', package['name'], last_modified=True)
