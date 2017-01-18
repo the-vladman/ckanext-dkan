@@ -155,7 +155,10 @@ class DKANHarvester(CKANHarvester):
         try:
             package_ids = set()
             object_ids = []
-            for pkg_dict in pkg_dicts if pkg_dict is not None:
+            for pkg_dict in pkg_dicts:
+                if pkg_dict is None:
+                    continue
+
                 if pkg_dict['id'] in package_ids:
                     log.info('Discarding duplicate dataset %s - probably due '
                              'to datasets being changed at the same time as '
