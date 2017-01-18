@@ -167,7 +167,7 @@ class DKANHarvester(CKANHarvester):
                     continue
                 package_ids.add(pkg_dict['id'])
 
-                log.debug(pkg_dict)
+                log.debug('Package: %s', pkg_dict)
                 log.debug('Creating HarvestObject for %s %s',
                           pkg_dict['name'], pkg_dict['id'])
 
