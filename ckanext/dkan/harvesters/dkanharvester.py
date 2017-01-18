@@ -240,7 +240,7 @@ class DKANHarvester(CKANHarvester):
 
             pkg_dicts_page = [self._convert_dkan_package_to_ckan(p) for p in pkg_dicts_page]
 
-            ids_in_page = set(p['id'] for p in pkg_dicts_page)
+            ids_in_page = set(p['id'] if p is not None for p in pkg_dicts_page)
             duplicate_ids = ids_in_page & pkg_ids
             if duplicate_ids:
                 pkg_dicts_page = [p for p in pkg_dicts_page if p['id'] not in duplicate_ids]
