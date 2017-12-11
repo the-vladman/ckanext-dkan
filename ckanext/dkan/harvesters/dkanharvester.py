@@ -51,14 +51,14 @@ class DKANHarvester(HarvesterBase):
         return '%s/current_package_list_with_resources' % self._get_action_api_offset()
 
     def _get_content(self, url):
-        http_request = urllib2.Request(url=url, timeout=90)
+        http_request = urllib2.Request(url=url)
 
         api_key = self.config.get('api_key')
         if api_key:
             http_request.add_header('Authorization', api_key)
 
         try:
-            http_response = urllib2.urlopen(http_request)
+            http_response = urllib2.urlopen(http_request, timeout=90)
         except urllib2.HTTPError, e:
             if e.getcode() == 404:
                 raise ContentNotFoundError('HTTP error: %s' % e.code)
@@ -727,6 +727,19 @@ class DKANHarvester(HarvesterBase):
         package_dict['tags'] = tags
 
         return package_dict
+
+
+class ContentFetchError(Exception):
+    pass
+
+
+class ContentNotFoundError(ContentFetchError):
+    pass
+
+
+class RemoteResourceError(Exception):
+    pass
+
 
 class SearchError(Exception):
     pass
