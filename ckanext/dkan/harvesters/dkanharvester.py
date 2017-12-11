@@ -6,7 +6,8 @@ import datetime
 import socket
 import datetime
 
-from ckanext.harvest.harvesters.ckanharvester import CKANHarvester
+# from ckanext.harvest.harvesters.ckanharvester import CKANHarvester
+from ckanext.harvest.harvesters.base import HarvesterBase
 from ckanext.harvest.model import HarvestObject
 from ckan.logic import ValidationError, NotFound, get_action
 from ckan import model
@@ -29,8 +30,11 @@ MIMETYPE_FORMATS = {
 }
 
 
-class DKANHarvester(CKANHarvester):
+class DKANHarvester(HarvesterBase):
     ckan_revision_api_works = False
+    config = None
+    api_version = 2
+    action_api_version = 3
 
     def info(self):
         return {
@@ -40,8 +44,143 @@ class DKANHarvester(CKANHarvester):
             'form_config_interface': 'Text'
         }
 
+    def _get_action_api_offset(self):
+        return '/api/%d/action' % self.action_api_version
+
     def _get_search_api_offset(self):
         return '%s/current_package_list_with_resources' % self._get_action_api_offset()
+
+    def _get_content(self, url):
+        http_request = urllib2.Request(url=url)
+
+        api_key = self.config.get('api_key')
+        if api_key:
+            http_request.add_header('Authorization', api_key)
+
+        try:
+            http_response = urllib2.urlopen(http_request)
+        except urllib2.HTTPError, e:
+            if e.getcode() == 404:
+                raise ContentNotFoundError('HTTP error: %s' % e.code)
+            else:
+                raise ContentFetchError('HTTP error: %s' % e.code)
+        except urllib2.URLError, e:
+            raise ContentFetchError('URL error: %s' % e.reason)
+        except httplib.HTTPException, e:
+            raise ContentFetchError('HTTP Exception: %s' % e)
+        except socket.error, e:
+            raise ContentFetchError('HTTP socket error: %s' % e)
+        except Exception, e:
+            raise ContentFetchError('HTTP general exception: %s' % e)
+        return http_response.read()
+
+    def _get_group(self, base_url, group):
+        url = base_url + self._get_action_api_offset() + '/group_show?id=' + \
+            group['id']
+        try:
+            content = self._get_content(url)
+            data = json.loads(content)
+            if self.action_api_version == 3:
+                return data.pop('result')
+            return data
+        except (ContentFetchError, ValueError):
+            log.debug('Could not fetch/decode remote group')
+            raise RemoteResourceError('Could not fetch/decode remote group')
+
+    def _get_organization(self, base_url, org_name):
+        url = base_url + self._get_action_api_offset() + \
+            '/organization_show?id=' + org_name
+        try:
+            content = self._get_content(url)
+            content_dict = json.loads(content)
+            return content_dict['result']
+        except (ContentFetchError, ValueError, KeyError):
+            log.debug('Could not fetch/decode remote group')
+            raise RemoteResourceError(
+                'Could not fetch/decode remote organization')
+
+    def _set_config(self, config_str):
+        if config_str:
+            self.config = json.loads(config_str)
+            if 'api_version' in self.config:
+                self.api_version = int(self.config['api_version'])
+
+            log.debug('Using config: %r', self.config)
+        else:
+            self.config = {}
+
+    def validate_config(self, config):
+        if not config:
+            return config
+
+        try:
+            config_obj = json.loads(config)
+
+            if 'api_version' in config_obj:
+                try:
+                    int(config_obj['api_version'])
+                except ValueError:
+                    raise ValueError('api_version must be an integer')
+
+            if 'default_tags' in config_obj:
+                if not isinstance(config_obj['default_tags'], list):
+                    raise ValueError('default_tags must be a list')
+                if config_obj['default_tags'] and \
+                        not isinstance(config_obj['default_tags'][0], dict):
+                    raise ValueError('default_tags must be a list of '
+                                     'dictionaries')
+
+            if 'default_groups' in config_obj:
+                if not isinstance(config_obj['default_groups'], list):
+                    raise ValueError('default_groups must be a *list* of group'
+                                     ' names/ids')
+                if config_obj['default_groups'] and \
+                        not isinstance(config_obj['default_groups'][0],
+                                       basestring):
+                    raise ValueError('default_groups must be a list of group '
+                                     'names/ids (i.e. strings)')
+
+                # Check if default groups exist
+                context = {'model': model, 'user': toolkit.c.user}
+                config_obj['default_group_dicts'] = []
+                for group_name_or_id in config_obj['default_groups']:
+                    try:
+                        group = get_action('group_show')(
+                            context, {'id': group_name_or_id})
+                        # save the dict to the config object, as we'll need it
+                        # in the import_stage of every dataset
+                        config_obj['default_group_dicts'].append(group)
+                    except NotFound, e:
+                        raise ValueError('Default group not found')
+                config = json.dumps(config_obj)
+
+            if 'default_extras' in config_obj:
+                if not isinstance(config_obj['default_extras'], dict):
+                    raise ValueError('default_extras must be a dictionary')
+
+            if 'organizations_filter_include' in config_obj \
+                and 'organizations_filter_exclude' in config_obj:
+                raise ValueError('Harvest configuration cannot contain both '
+                    'organizations_filter_include and organizations_filter_exclude')
+
+            if 'user' in config_obj:
+                # Check if user exists
+                context = {'model': model, 'user': toolkit.c.user}
+                try:
+                    user = get_action('user_show')(
+                        context, {'id': config_obj.get('user')})
+                except NotFound:
+                    raise ValueError('User not found')
+
+            for key in ('read_only', 'force_all'):
+                if key in config_obj:
+                    if not isinstance(config_obj[key], bool):
+                        raise ValueError('%s must be boolean' % key)
+
+        except ValueError, e:
+            raise e
+
+        return config
 
     def _get_all_packages(self, base_url, harvest_job):
         # Request all remote packages
@@ -73,6 +212,11 @@ class DKANHarvester(CKANHarvester):
 
         package = json.loads(content)['result'][0]
         return url, json.dumps(package)
+
+    def fetch_stage(self, harvest_object):
+        # Nothing to do here - we got the package dict in the search in the
+        # gather stage
+        return True
 
     def gather_stage(self, harvest_job):
         log.debug('In DKANHarvester gather_stage (%s)',
