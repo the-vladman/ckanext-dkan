@@ -6,7 +6,7 @@ import datetime
 import socket
 import datetime
 
-from ckanext.harvest.harvesters import CKANHarvester
+from ckanext.harvest.harvesters.ckanharvester import CKANHarvester
 from ckanext.harvest.model import HarvestObject
 from ckan.logic import ValidationError, NotFound, get_action
 from ckan import model
