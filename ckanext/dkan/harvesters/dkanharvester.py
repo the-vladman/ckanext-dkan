@@ -51,7 +51,7 @@ class DKANHarvester(HarvesterBase):
         return '%s/current_package_list_with_resources' % self._get_action_api_offset()
 
     def _get_content(self, url):
-        http_request = urllib2.Request(url=url)
+        http_request = urllib2.Request(url=url, timeout=90)
 
         api_key = self.config.get('api_key')
         if api_key:
