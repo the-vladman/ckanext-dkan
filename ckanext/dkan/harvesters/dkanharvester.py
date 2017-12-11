@@ -242,7 +242,7 @@ class DKANHarvester(HarvesterBase):
 
         # Ideally we can request from the remote CKAN only those datasets
         # modified since the last completely successful harvest.
-        last_error_free_job = self._last_error_free_job(harvest_job)
+        last_error_free_job = self.last_error_free_job(harvest_job)
         log.debug('Last error-free job: %r', last_error_free_job)
         if (last_error_free_job and
                 not self.config.get('force_all', False)):
