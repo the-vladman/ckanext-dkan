@@ -378,23 +378,28 @@ class DKANHarvester(HarvesterBase):
                 raise SearchError('Response JSON did not contain '
                                   'result/results: %r' % response_dict)
 
-            if len(pkg_dicts_page) == 0:
-                break
             # Weed out any datasets found on previous pages (should datasets be
             # changing while we page)
 
             if type(pkg_dicts_page[0]) == list:
                 pkg_dicts_page = pkg_dicts_page[0]
 
+	    log.debug('Searching datasets: %s', len(pkg_dicts_page))
+            if len(pkg_dicts_page) == 0:
+                break
             pkg_dicts_page = [self._convert_dkan_package_to_ckan(p) for p in pkg_dicts_page]
+	    pkg_clean = [p for p in pkg_dicts_page if p is not None]
 
-            ids_in_page = set(p['id'] for p in pkg_dicts_page if p is not None)
+
+            ids_in_page = set(p['id'] for p in pkg_clean)
             duplicate_ids = ids_in_page & pkg_ids
-            if duplicate_ids:
-                pkg_dicts_page = [p for p in pkg_dicts_page if p['id'] not in duplicate_ids]
+            if len(duplicate_ids) > 0:
+		for p in pkg_clean:
+                	log.debug('PAJE: %s', p['id'])
+                pkg_dicts_page = [p for p in pkg_clean if p['id'] not in duplicate_ids]
             pkg_ids |= ids_in_page
 
-            pkg_dicts.extend(pkg_dicts_page)
+            pkg_dicts.extend(pkg_clean)
 
             params['offset'] = str(int(params['offset']) + int(params['limit']))
 

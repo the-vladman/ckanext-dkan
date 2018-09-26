@@ -1,0 +1,15 @@
+MANIFEST.in
+README.rst
+setup.cfg
+ckanext/__init__.py
+ckanext/dkan/__init__.py
+ckanext/dkan/plugin.py
+ckanext/dkan/harvesters/__init__.py
+ckanext/dkan/harvesters/dkanharvester.py
+ckanext/dkan/tests/__init__.py
+ckanext/dkan/tests/test_plugin.py
+ckanext_dkan.egg-info/PKG-INFO
+ckanext_dkan.egg-info/SOURCES.txt
+ckanext_dkan.egg-info/dependency_links.txt
+ckanext_dkan.egg-info/entry_points.txt
+ckanext_dkan.egg-info/top_level.txt
