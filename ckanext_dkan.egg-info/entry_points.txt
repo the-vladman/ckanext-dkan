@@ -1,5 +1,0 @@
-
-        [ckan.plugins]
-        dkan_harvester=ckanext.dkan.harvesters.dkanharvester:DKANHarvester
-        dkan=ckanext.dkan.plugin:DkanPlugin
-    
